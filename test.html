@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猛健樂計算機 - 時悅藥局</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        @font-face {
+            font-family: 'ChenYuluoyan';
+            src: url('https://cdn.jsdelivr.net/gh/max32002/chenyuluoyan@master/ChenYuluoyan-Thin.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        body {
+            background-color: #Fdfbf7; 
+            font-family: 'Quicksand', 'ChenYuluoyan', 'Noto Serif TC', serif;
+            color: #5c4a40;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 強制數字與英文使用優雅的 Quicksand */
+        .font-sans, input, select, .digit-font {
+            font-family: 'Quicksand', sans-serif !important;
+        }
+        
+        .font-serif-custom {
+            font-family: 'ChenYuluoyan', sans-serif;
+        }
+
+        .elegant-shadow { box-shadow: 0 10px 30px -10px rgba(140, 126, 110, 0.15); }
+        .elegant-input:focus { outline: none; border-color: #b09886; box-shadow: 0 0 0 3px rgba(176, 152, 134, 0.2); }
+        .progress-bar-fill { transition: width 0.4s ease; }
+
+        /* 動畫樣式 */
+        @keyframes animCapPullUp { 0%, 15%, 100% { transform: translateY(2px); } 50%, 65% { transform: translateY(-16px); } }
+        .anim-cap-pull-up { animation: animCapPullUp 2.5s infinite ease-in-out; }
+        @keyframes animWipe { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(4px, -2px); } 75% { transform: translate(-4px, 2px); } }
+        .anim-wipe { animation: animWipe 1.2s infinite ease-in-out; }
+        @keyframes animNeedleSlide { 0% { transform: translateX(-10px); opacity: 0; } 40%, 100% { transform: translateX(0); opacity: 1; } }
+        .anim-needle-slide { animation: animNeedleSlide 2.5s infinite ease-in-out; }
+        @keyframes animScrewTwist { 0%, 40% { opacity: 0; transform: rotate(-20deg); } 70%, 90% { opacity: 1; transform: rotate(40deg); } 100% { opacity: 0; transform: rotate(40deg); } }
+        .anim-screw-twist { animation: animScrewTwist 2.5s infinite ease-in-out; transform-origin: 40px 32px; }
+        @keyframes animKnobRidges { 0% { transform: translateY(0); } 100% { transform: translateY(-4px); } }
+        .anim-knob-ridges { animation: animKnobRidges 0.5s infinite linear; }
+        @keyframes animArrowPulse { 0%, 100% { opacity: 0.2; transform: translateX(-1px); } 50% { opacity: 1; transform: translateX(1px); } }
+        .anim-arrow-pulse { animation: animArrowPulse 1.5s infinite ease-in-out; }
+        @keyframes animTapPen { 0%, 100% { transform: rotate(0deg); } 10%, 30% { transform: rotate(-2deg); } 20%, 40% { transform: rotate(2deg); } }
+        .anim-tap-pen { animation: animTapPen 2.5s infinite ease-in-out; transform-origin: 32px 48px; }
+        @keyframes animDropLeak { 0%, 40% { opacity: 0; transform: translateY(4px) scale(0.5); } 60% { opacity: 1; transform: translateY(0) scale(1); } 90%, 100% { opacity: 0; transform: translateY(-16px) scale(0.6); } }
+        .anim-drop-leak { animation: animDropLeak 2.5s infinite ease-in-out; }
+        @keyframes animInjectDown { 0%, 100% { transform: translateY(-10px); } 40%, 80% { transform: translateY(4px); } }
+        .anim-inject-down { animation: animInjectDown 3s infinite ease-in-out; }
+        @keyframes animButtonPress { 0%, 40%, 100% { transform: translateY(0); } 55%, 75% { transform: translateY(4px); } }
+        .anim-button-press { animation: animButtonPress 3s infinite ease-in-out; }
+        @keyframes animTimerSpin { from { stroke-dashoffset: 113; } to { stroke-dashoffset: 0; } }
+        .anim-timer-spin { stroke-dasharray: 113; animation: animTimerSpin 5s infinite linear; transform: rotate(-90deg); transform-origin: 32px 32px; }
+        @keyframes animLiftUp { 0%, 100% { transform: translateY(6px); opacity: 1; } 50% { transform: translateY(-12px); opacity: 0.6; } }
+        .anim-lift-up { animation: animLiftUp 2.2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:py-12 flex flex-col items-center">
+
+    <div class="w-full max-w-2xl mx-auto flex-grow">
+        
+        <header class="text-center mb-10 mt-4">
+            <div class="text-xs tracking-[0.4em] font-semibold text-[#b09886] uppercase mb-3 font-sans">OCT. PHARMACY</div>
+            <h1 class="text-3xl md:text-4xl font-bold text-[#5c4a40] tracking-wider font-serif-custom">猛健樂計算機</h1>
+            <div class="h-[1px] w-12 bg-[#b09886] mx-auto mt-5"></div>
+        </header>
+
+        <div class="bg-white rounded-2xl elegant-shadow overflow-hidden border border-[#f0eadd] mb-8">
+            <div class="flex border-b border-[#f0eadd] bg-[#fcfaf7]">
+                <button id="tab1Btn" onclick="switchTab(1)" class="w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] font-serif-custom text-xl transition-all cursor-pointer">常規施打計算與教學</button>
+                <button id="tab2Btn" onclick="switchTab(2)" class="w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] font-serif-custom text-xl transition-all cursor-pointer">BD 針筒殘劑抽取</button>
+            </div>
+
+            <div class="p-5 md:p-8">
+                <div id="contentTab1" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-base font-semibold text-[#8C7E6E] mb-2 font-serif-custom">目前使用的筆針規格 (mg)</label>
+                            <select id="penSpecA" onchange="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input cursor-pointer font-sans">
+                                <option value="2.5">2.5 mg</option>
+                                <option value="5.0">5.0 mg</option>
+                                <option value="10.0" selected>10.0 mg</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-base font-semibold text-[#8C7E6E] mb-2 font-serif-custom">客戶實際要施打的劑量 (mg)</label>
+                            <input type="number" id="targetDoseA" value="2.5" step="0.1" oninput="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input font-sans text-lg">
+                        </div>
+                    </div>
+                    <div class="border-t border-[#f0eadd] pt-6 text-center">
+                        <div class="text-lg font-semibold text-[#b09886] mb-1 font-serif-custom">建議旋轉格數</div>
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2 font-sans">
+                            <span id="resultClicksA">15</span> <span class="text-2xl font-medium text-[#8C7E6E] ml-1 font-serif-custom">格</span>
+                        </div>
+                        <div class="text-base text-[#8C7E6E] mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-serif-custom">
+                            對應施打體積：<span id="resultVolA" class="font-bold font-sans">0.15</span> ml
+                        </div>
+                    </div>
+                </div>
+
+                <div id="contentTab2" class="hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-base font-semibold text-[#8C7E6E] mb-2 font-serif-custom">原殘劑筆針規格 (mg)</label>
+                            <select id="penSpecB" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input font-sans">
+                                <option value="10.0" selected>10.0 mg</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-base font-semibold text-[#8C7E6E] mb-2 font-serif-custom">預計施打劑量 (mg)</label>
+                            <input type="number" id="targetDoseB" value="2.5" step="0.1" oninput="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input font-sans">
+                        </div>
+                        <div>
+                            <label class="block text-base font-semibold text-[#8C7E6E] mb-2 font-serif-custom">選用 BD 針筒</label>
+                            <select id="syringeSpec" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input font-sans">
+                                <option value="30">0.3ml (30U)</option>
+                                <option value="50">0.5ml (50U)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="containerB" class="border-t border-[#f0eadd] pt-6 text-center">
+                        <div class="text-lg font-semibold text-[#b09886] mb-1 font-serif-custom">BD 針筒對應抽吸刻度</div>
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2 font-sans">
+                            <span id="resultUnitsB">15</span> <span class="text-2xl font-medium text-[#8C7E6E] ml-1 font-serif-custom">單位 (U)</span>
+                        </div>
+                        <div class="text-base text-[#8C7E6E] mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-serif-custom">
+                            需要抽取的體積：<span id="resultVolB" class="font-bold font-sans">0.15</span> ml
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-10 mb-6">
+            <div class="text-[11px] font-medium text-[#b09886] tracking-widest uppercase font-sans">© 2026 時悅藥局 OCT. PHARMACY</div>
+            <div class="text-sm text-[#c2b5aa] mt-2 tracking-widest font-serif-custom">專業守護 • 溫暖陪伴</div>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(tabIndex) {
+            const btn1 = document.getElementById('tab1Btn');
+            const btn2 = document.getElementById('tab2Btn');
+            const content1 = document.getElementById('contentTab1');
+            const content2 = document.getElementById('contentTab2');
+
+            if (tabIndex === 1) {
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] font-serif-custom text-xl transition-all cursor-pointer";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] font-serif-custom text-xl transition-all cursor-pointer";
+                content1.classList.remove('hidden'); content2.classList.add('hidden');
+            } else {
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] font-serif-custom text-xl transition-all cursor-pointer";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] font-serif-custom text-xl transition-all cursor-pointer";
+                content1.classList.add('hidden'); content2.classList.remove('hidden');
+            }
+        }
+
+        function calculateA() {
+            const spec = parseFloat(document.getElementById('penSpecA').value);
+            const dose = parseFloat(document.getElementById('targetDoseA').value) || 0;
+            const vol = (dose / spec) * 0.6;
+            document.getElementById('resultClicksA').innerText = Math.round(vol / 0.01);
+            document.getElementById('resultVolA').innerText = vol.toFixed(2);
+        }
+
+        function calculateB() {
+            const spec = parseFloat(document.getElementById('penSpecB').value);
+            const dose = parseFloat(document.getElementById('targetDoseB').value) || 0;
+            const vol = (dose / spec) * 0.6;
+            document.getElementById('resultUnitsB').innerText = Math.round(vol * 100);
+            document.getElementById('resultVolB').innerText = vol.toFixed(2);
+        }
+
+        window.onload = () => { calculateA(); calculateB(); };
+    </script>
+</body>
+</html>
