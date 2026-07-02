@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猛健樂計算機 - 時悅藥局</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========================================== */
+        /* 基礎優雅溫暖風設定 */
+        /* ========================================== */
+        body {
+            /* 溫潤的米色底 */
+            background-color: #Fdfbf7; 
+            /* 英文: Quicksand, 中文: Noto Serif TC */
+            font-family: 'Quicksand', 'Noto Serif TC', serif;
+            color: #5c4a40; /* 柔和的深灰褐色，取代死黑 */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .text-primary { color: #8C7E6E; } /* 暖石灰 */
+        .bg-primary { background-color: #8C7E6E; }
+        .border-primary { border-color: #8C7E6E; }
+        
+        .text-accent { color: #b09886; } /* 奶茶色 */
+        .bg-accent { background-color: #b09886; }
+        
+        .text-warning { color: #a95e59; } /* 柔和暗紅 */
+        .bg-warning-light { background-color: #fcf5f4; }
+
+        /* 溫柔的卡片陰影 */
+        .elegant-shadow {
+            box-shadow: 0 10px 30px -10px rgba(140, 126, 110, 0.15);
+        }
+        
+        /* 輸入框聚焦效果 */
+        .elegant-input:focus {
+            outline: none;
+            border-color: #b09886;
+            box-shadow: 0 0 0 3px rgba(176, 152, 134, 0.2);
+        }
+
+        /* 轉場動畫 */
+        .slide-fade-enter {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.4s ease-out;
+        }
+        .slide-fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .progress-bar-fill {
+            transition: width 0.4s ease;
+        }
+
+        /* ========================================== */
+        /* 10大步驟 SVG 核心微動畫 (修正版) */
+        /* ========================================== */
+        @keyframes animCapPull {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-12px); }
+        }
+        .anim-cap-pull { animation: animCapPull 2s infinite ease-in-out; }
+
+        @keyframes animWipe {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(4px, -2px); }
+            75% { transform: translate(-4px, 2px); }
+        }
+        .anim-wipe { animation: animWipe 1.2s infinite ease-in-out; }
+
+        @keyframes animNeedleSlide {
+            0% { transform: translateX(-10px); opacity: 0; }
+            40%, 100% { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes animScrewTwist {
+            0%, 40% { opacity: 0; transform: rotate(-20deg); }
+            70%, 90% { opacity: 1; transform: rotate(40deg); }
+            100% { opacity: 0; transform: rotate(40deg); }
+        }
+        .anim-needle-slide { animation: animNeedleSlide 2.5s infinite ease-in-out; }
+        .anim-screw-twist { animation: animScrewTwist 2.5s infinite ease-in-out; transform-origin: 40px 32px; }
+
+        @keyframes animKnobRidges {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
+        }
+        @keyframes animArrowPulse {
+            0%, 100% { opacity: 0.2; transform: translateX(-1px); }
+            50% { opacity: 1; transform: translateX(1px); }
+        }
+        .anim-knob-ridges { animation: animKnobRidges 0.5s infinite linear; }
+        .anim-arrow-pulse { animation: animArrowPulse 1.5s infinite ease-in-out; }
+
+        @keyframes animTapPen {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(-2deg); }
+            20%, 40% { transform: rotate(2deg); }
+        }
+        @keyframes animDropLeak {
+            0%, 40% { opacity: 0; transform: translateY(4px) scale(0.5); }
+            60% { opacity: 1; transform: translateY(0) scale(1); }
+            90%, 100% { opacity: 0; transform: translateY(-16px) scale(0.6); }
+        }
+        .anim-tap-pen { animation: animTapPen 2.5s infinite ease-in-out; transform-origin: 32px 48px; }
+        .anim-drop-leak { animation: animDropLeak 2.5s infinite ease-in-out; }
+
+        @keyframes animPulseRing {
+            0% { transform: scale(0.7); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        .anim-pulse-ring { animation: animPulseRing 1.6s infinite cubic-bezier(0.215, 0.610, 0.355, 1); transform-origin: 32px 36px; }
+
+        @keyframes animInjectDown {
+            0%, 100% { transform: translateY(-10px); }
+            40%, 80% { transform: translateY(4px); }
+        }
+        @keyframes animButtonPress {
+            0%, 40%, 100% { transform: translateY(0); }
+            55%, 75% { transform: translateY(4px); }
+        }
+        .anim-inject-down { animation: animInjectDown 3s infinite ease-in-out; }
+        .anim-button-press { animation: animButtonPress 3s infinite ease-in-out; }
+
+        @keyframes animTimerSpin {
+            from { stroke-dashoffset: 113; }
+            to { stroke-dashoffset: 0; }
+        }
+        .anim-timer-spin { stroke-dasharray: 113; animation: animTimerSpin 5s infinite linear; transform: rotate(-90deg); transform-origin: 32px 32px; }
+
+        @keyframes animLiftUp {
+            0%, 100% { transform: translateY(6px); opacity: 1; }
+            50% { transform: translateY(-12px); opacity: 0.6; }
+        }
+        .anim-lift-up { animation: animLiftUp 2.2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:py-12 flex flex-col items-center">
+
+    <div class="w-full max-w-2xl mx-auto flex-grow">
+        
+        <header class="text-center mb-10 mt-4">
+            <div class="text-xs tracking-[0.4em] font-semibold text-[#b09886] uppercase mb-3 font-sans">
+                OCT. PHARMACY
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-[#5c4a40] tracking-wider">
+                猛健樂計算機
+            </h1>
+            <div class="h-[1px] w-12 bg-[#b09886] mx-auto mt-5"></div>
+        </header>
+
+        <div class="bg-white rounded-2xl elegant-shadow overflow-hidden border border-[#f0eadd] mb-8">
+            
+            <div class="flex border-b border-[#f0eadd] bg-[#fcfaf7]">
+                <button id="tab1Btn" onclick="switchTab(1)" class="w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] transition-all cursor-pointer focus:outline-none">
+                    常規施打計算與教學
+                </button>
+                <button id="tab2Btn" onclick="switchTab(2)" class="w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] transition-all cursor-pointer focus:outline-none">
+                    BD 針筒殘劑抽取
+                </button>
+            </div>
+
+            <div class="p-5 md:p-8">
+                
+                <div id="contentTab1" class="space-y-8">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-[#8C7E6E] mb-2">目前使用的筆針規格 (mg)</label>
+                            <select id="penSpecA" onchange="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input cursor-pointer">
+                                <option value="2.5">2.5 mg</option>
+                                <option value="5.0">5.0 mg</option>
+                                <option value="7.5">7.5 mg</option>
+                                <option value="10.0" selected>10.0 mg</option>
+                                <option value="12.5">12.5 mg</option>
+                                <option value="15.0">15.0 mg</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#8C7E6E] mb-2">客戶實際要施打的劑量 (mg)</label>
+                            <input type="number" id="targetDoseA" value="2.5" step="0.1" min="0" oninput="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input text-lg">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#f0eadd] pt-6 text-center">
+                        <div class="text-sm font-semibold text-[#b09886] mb-1">建議旋轉格數</div>
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2">
+                            <span id="resultClicksA">15</span> <span class="text-xl font-medium text-[#8C7E6E] ml-1">格</span>
+                        </div>
+                        <div class="text-xs text-[#8C7E6E] font-medium mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd]">
+                            對應施打體積：<span id="resultVolA" class="font-bold">0.15</span> ml
+                        </div>
+                    </div>
+
+                    <div class="bg-[#fdfbf7] border border-[#f0eadd] rounded-2xl p-5 md:p-8 mt-4 relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xs font-bold tracking-[0.1em] text-[#b09886] uppercase">互動式衛教指引</h2>
+                            <button id="autoPlayBtn" onclick="toggleAutoPlay()" class="text-xs px-4 py-1.5 bg-white border border-[#e8dcc4] rounded-full text-[#8C7E6E] hover:bg-[#f5f1e9] transition-colors focus:outline-none shadow-sm">
+                                ▶ 自動播放
+                            </button>
+                        </div>
+
+                        <div class="w-full bg-[#f0eadd] rounded-full h-1 mb-8">
+                            <div id="tutorialProgress" class="bg-[#b09886] h-1 rounded-full progress-bar-fill" style="width: 10%;"></div>
+                        </div>
+
+                        <div id="stepContent" class="min-h-[280px] flex flex-col justify-center items-center text-center p-6 bg-white rounded-xl border border-[#f0eadd] shadow-sm slide-fade-enter slide-fade-enter-active">
+                            <div id="stepPhase" class="text-[10px] font-bold text-white px-3 py-1 rounded-full mb-5 tracking-widest uppercase bg-[#d5c7b8]">前置準備</div>
+                            
+                            <div id="stepIconContainer" class="w-24 h-24 mb-5 text-[#8C7E6E] flex items-center justify-center bg-[#fdfbf7] rounded-full border border-[#f0eadd]">
+                                </div>
+                            
+                            <div id="stepText" class="text-sm md:text-base text-[#5c4a40] font-semibold max-w-md leading-loose">將注射筆蓋拔起</div>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-6 px-2">
+                            <button onclick="prevStep()" class="text-sm font-semibold text-[#b09886] hover:text-[#5c4a40] transition-colors focus:outline-none">&larr; 上一步</button>
+                            <span id="stepCounter" class="text-xs font-bold text-[#b09886] tracking-widest">1 / 10</span>
+                            <button onclick="nextStep()" class="px-5 py-2 text-sm font-semibold text-white bg-[#b09886] rounded-full hover:bg-[#8C7E6E] transition-colors focus:outline-none shadow-sm">下一步 &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="contentTab2" class="hidden space-y-8">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-[#8C7E6E] mb-2">原殘劑筆針規格 (mg)</label>
+                            <select id="penSpecB" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input cursor-pointer">
+                                <option value="2.5">2.5 mg</option>
+                                <option value="5.0">5.0 mg</option>
+                                <option value="7.5">7.5 mg</option>
+                                <option value="10.0" selected>10.0 mg</option>
+                                <option value="12.5">12.5 mg</option>
+                                <option value="15.0">15.0 mg</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#8C7E6E] mb-2">下一次預計施打劑量 (mg)</label>
+                            <input type="number" id="targetDoseB" value="2.5" step="0.1" min="0" oninput="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#8C7E6E] mb-2">選用的 BD 針筒規格</label>
+                            <select id="syringeSpec" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-semibold elegant-input cursor-pointer">
+                                <option value="30">BD 0.3ml (上限30U)</option>
+                                <option value="50">BD 0.5ml (上限50U)</option>
+                                <option value="100">BD 1.0ml (上限100U)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="errorWarning" class="p-4 rounded-xl bg-warning-light border border-[#e6d5d5] text-warning text-sm font-semibold hidden">
+                        ⚠️ 抽取劑量已超過該針筒容量上限！請更換為較大容量的 BD 針筒。
+                    </div>
+
+                    <div id="containerB" class="border-t border-[#f0eadd] pt-6 text-center transition-all rounded-xl p-2">
+                        <div class="text-sm font-semibold text-[#b09886] mb-1">BD 針筒對應抽吸刻度</div>
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2">
+                            <span id="resultUnitsB">15</span> <span class="text-xl font-medium text-[#8C7E6E] ml-1">單位 (Units)</span>
+                        </div>
+                        <div class="text-xs text-[#8C7E6E] font-medium mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd]">
+                            需要抽取的體積：<span id="resultVolB" class="font-bold">0.15</span> ml
+                        </div>
+                    </div>
+
+                    <div class="mt-6 border border-[#f0eadd] rounded-2xl p-5 md:p-6 bg-[#fdfbf7]">
+                        <h2 class="text-xs font-bold tracking-[0.1em] text-[#b09886] uppercase mb-5 pl-1">居家殘劑抽取安全 SOP 指引</h2>
+                        <div class="space-y-3" id="sopList">
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="text-center mt-10 mb-6">
+            <div class="text-[11px] font-medium text-[#b09886] tracking-widest uppercase">
+                © 2026 時悅藥局 OCT. PHARMACY
+            </div>
+            <div class="text-[10px] text-[#c2b5aa] mt-2 tracking-wide">
+                專業守護 • 溫潤陪伴
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // === 1. 分頁切換邏輯 (修復版) ===
+        function switchTab(tabIndex) {
+            const btn1 = document.getElementById('tab1Btn');
+            const btn2 = document.getElementById('tab2Btn');
+            const content1 = document.getElementById('contentTab1');
+            const content2 = document.getElementById('contentTab2');
+
+            if (tabIndex === 1) {
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] transition-all cursor-pointer focus:outline-none";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] transition-all cursor-pointer focus:outline-none";
+                content1.classList.remove('hidden');
+                content2.classList.add('hidden');
+                calculateA();
+            } else {
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] transition-all cursor-pointer focus:outline-none";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] transition-all cursor-pointer focus:outline-none";
+                content1.classList.add('hidden');
+                content2.classList.remove('hidden');
+                calculateB();
+            }
+        }
+
+        // === 2. 模組 A：劑量計算 ===
+        function calculateA() {
+            const penSpec = parseFloat(document.getElementById('penSpecA').value);
+            const targetDose = parseFloat(document.getElementById('targetDoseA').value) || 0;
+            
+            const vol = (targetDose / penSpec) * 0.6;
+            const clicks = Math.round(vol / 0.01);
+            
+            document.getElementById('resultClicksA').innerText = isNaN(clicks) ? 0 : clicks;
+            document.getElementById('resultVolA').innerText = isNaN(vol) ? "0.00" : vol.toFixed(2);
+            
+            updateDynamicTutorialText(clicks);
+        }
+
+        // === 3. 模組 A：10大步驟動作特製動態插圖資料庫 (原版回歸) ===
+        const svgIcons = {
+            step1: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M26 26h24v12H26z" stroke-dasharray="1 1"/>
+                <path d="M26 28h22v8H26z"/>
+                <g class="anim-cap-pull"><path d="M26 25H12v14h14V25z" fill="#fffdf7"/><path d="M8 32h4"/></g>
+            </svg>`,
+            step2: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M38 28h16v8H38z"/><path d="M38 30l-4 1v2l4 1z" fill="#b09886"/>
+                <g class="anim-wipe"><rect x="22" y="24" width="10" height="16" rx="1" fill="#b09886" fill-opacity="0.2"/><rect x="22" y="24" width="10" height="16" rx="1"/></g>
+            </svg>`,
+            step3: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M38 27h16v10H38z"/>
+                <g class="anim-needle-slide"><path d="M22 25h10v14H22z" fill="#fffdf7"/><path d="M12 32h10"/></g>
+                <g class="anim-screw-twist"><path d="M36 20a10 10 0 0 1 8 6" stroke="#b09886" stroke-width="1.2" stroke-dasharray="1.5 1.5"/><path d="M44 23l2 3-3 1" fill="#b09886"/></g>
+            </svg>`,
+            step4: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="12" y="24" width="30" height="16" rx="1"/><rect x="20" y="28" width="12" height="8" fill="#fdfbf7"/><line x1="23" y1="32" x2="29" y2="32" stroke-width="2"/>
+                <g>
+                    <mask id="knobMask4"><rect x="42" y="26" width="8" height="12" rx="1" fill="white"/></mask>
+                    <rect x="42" y="26" width="8" height="12" rx="1" fill="#fffdf7"/>
+                    <g mask="url(#knobMask4)">
+                        <g class="anim-knob-ridges"><line x1="42" y1="20" x2="50" y2="20"/><line x1="42" y1="24" x2="50" y2="24"/><line x1="42" y1="28" x2="50" y2="28"/><line x1="42" y1="32" x2="50" y2="32"/><line x1="42" y1="36" x2="50" y2="36"/><line x1="42" y1="40" x2="50" y2="40"/><line x1="42" y1="44" x2="50" y2="44"/></g>
+                    </g>
+                    <rect x="42" y="26" width="8" height="12" rx="1"/>
+                </g>
+                <path class="anim-arrow-pulse" d="M46 19a5 5 0 0 1 5 5c0 2-1 4-3 5" stroke="#b09886" stroke-width="1.2"/><path class="anim-arrow-pulse" d="M46 30l2-1M46 30l-1-2" stroke="#b09886" stroke-width="1.2"/>
+            </svg>`,
+            step5: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <g class="anim-tap-pen"><rect x="28" y="26" width="8" height="28" rx="1"/><line x1="32" y1="26" x2="32" y2="16"/></g>
+                <circle class="anim-drop-leak" cx="32" cy="12" r="2" fill="#8C7E6E"/><path d="M44 34l-3 2" stroke-dasharray="1 1"/>
+            </svg>`,
+            step6: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="12" y="24" width="30" height="16" rx="1"/><rect x="20" y="28" width="12" height="8" fill="#fdfbf7"/><text x="24" y="35" font-family="Quicksand, sans-serif" font-size="8" font-weight="bold" fill="#5c4a40">1</text>
+                <g>
+                    <mask id="knobMask6"><rect x="42" y="26" width="8" height="12" rx="1" fill="white"/></mask>
+                    <rect x="42" y="26" width="8" height="12" rx="1" fill="#fffdf7"/>
+                    <g mask="url(#knobMask6)">
+                        <g class="anim-knob-ridges"><line x1="42" y1="20" x2="50" y2="20"/><line x1="42" y1="24" x2="50" y2="24"/><line x1="42" y1="28" x2="50" y2="28"/><line x1="42" y1="32" x2="50" y2="32"/><line x1="42" y1="36" x2="50" y2="36"/><line x1="42" y1="40" x2="50" y2="40"/><line x1="42" y1="44" x2="50" y2="44"/></g>
+                    </g>
+                    <rect x="42" y="26" width="8" height="12" rx="1"/>
+                </g>
+                <path class="anim-arrow-pulse" d="M46 19a5 5 0 0 1 5 5c0 2-1 4-3 5" stroke="#b09886" stroke-width="1.2"/><path class="anim-arrow-pulse" d="M46 30l2-1M46 30l-1-2" stroke="#b09886" stroke-width="1.2"/>
+            </svg>`,
+            step7: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 46c12-5 28-5 40 0" stroke-width="1.5"/><circle class="anim-pulse-ring" cx="32" cy="36" r="10" stroke="#b09886" stroke-width="1"/>
+                <g class="anim-wipe"><circle cx="32" cy="36" r="3" fill="#8C7E6E"/></g>
+            </svg>`,
+            step8: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="50" x2="52" y2="50" stroke-width="1.5"/>
+                <g class="anim-inject-down"><rect x="28" y="16" width="8" height="26" fill="#fffdf7"/><line x1="32" y1="42" x2="32" y2="50" stroke-width="1.5"/><path class="anim-button-press" d="M29 16v-5h6v5z" fill="#b09886"/></g>
+            </svg>`,
+            step9: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="32" cy="32" r="20" stroke="#f0eadd" stroke-width="2"/><circle class="anim-timer-spin" cx="32" cy="32" r="18" stroke="#b09886" stroke-width="2" fill="none"/>
+                <text x="32" y="36" font-family="Quicksand, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="#5c4a40">5s</text>
+            </svg>`,
+            step10: `<svg class="w-12 h-12 text-[#8C7E6E]" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="52" x2="52" y2="52" stroke-dasharray="2 2"/>
+                <g class="anim-lift-up"><rect x="28" y="14" width="8" height="26" fill="#fffdf7"/><line x1="32" y1="40" x2="32" y2="46"/><path d="M24 10l8-6 8 6" stroke-width="1"/></g>
+            </svg>`
+        };
+
+        const tutorialSteps = [
+            { phase: "前置準備", icon: svgIcons.step1, text: "將注射筆蓋直直拔起打開" },
+            { phase: "前置準備", icon: svgIcons.step2, text: "以酒精棉片溫和且徹底地擦拭前緣紅色內膜" },
+            { phase: "前置準備", icon: svgIcons.step3, text: "撕開針頭紙質封口，將蓋上蓋子的針頭直推到注射筆上，隨後順時針旋轉直至拴緊" },
+            { phase: "排氣動作", icon: svgIcons.step4, text: "旋轉劑量旋鈕直到您聽到 2 聲清脆的喀嗒聲，並在視窗中看到排氣長線條" },
+            { phase: "排氣動作", icon: svgIcons.step5, text: "將針頭朝上，輕敲注射筆藥匣使氣泡聚集至上方；隨後按到底排出空氣與微量藥液" },
+            { phase: "開始注射", icon: svgIcons.step6, text: "調整劑量旋鈕，直至劑量視窗顯示為 1（表示完整劑量）" }, 
+            { phase: "開始注射", icon: svgIcons.step7, text: "選定注射部位（腹部、大腿或上臂外側），以酒精棉片由內向外清潔消毒並待風乾" },
+            { phase: "開始注射", icon: svgIcons.step8, text: "將針頭垂直平順地刺入您的皮膚中，隨後穩定按壓下劑量旋鈕直到停止為止" },
+            { phase: "開始注射", icon: svgIcons.step9, text: "確認劑量視窗完全回歸為 0 提示圖示，並於皮下靜止默數 5 秒鐘確保藥物完全吸收" },
+            { phase: "開始注射", icon: svgIcons.step10, text: "平直將針頭拔出皮膚（針尖有一滴藥物屬正常現象），小心將外罩蓋回並妥善儲存注射筆" }
+        ];
+
+        let currentStepIndex = 0;
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+
+        function updateDynamicTutorialText(calculatedClicks) {
+            if(calculatedClicks > 0 && !isNaN(calculatedClicks)) {
+                tutorialSteps[5].text = `調整劑量旋鈕，直至劑量視窗顯示為 1（或依照藥師為您精算的建議，精準旋轉至 <span class="text-[#a95e59] font-bold border-b border-[#e8dcc4] px-1 text-lg">${calculatedClicks}</span> 格）`;
+            } else {
+                tutorialSteps[5].text = "調整劑量旋鈕，直至劑量視窗顯示為 1（表示完整劑量）";
+            }
+            if(currentStepIndex === 5) renderStep();
+        }
+
+        function renderStep() {
+            const step = tutorialSteps[currentStepIndex];
+            const contentDiv = document.getElementById('stepContent');
+            
+            contentDiv.classList.remove('slide-fade-enter-active');
+            void contentDiv.offsetWidth; 
+            contentDiv.classList.add('slide-fade-enter-active');
+
+            const stepPhaseDiv = document.getElementById('stepPhase');
+            stepPhaseDiv.innerText = step.phase;
+            
+            // 優雅的大地色系標籤配色
+            if (step.phase === '前置準備') {
+                stepPhaseDiv.className = "text-[10px] font-bold text-white px-3 py-1 rounded-full mb-5 tracking-widest uppercase bg-[#c2b5aa]";
+            } else if (step.phase === '排氣動作') {
+                stepPhaseDiv.className = "text-[10px] font-bold text-white px-3 py-1 rounded-full mb-5 tracking-widest uppercase bg-[#b09886]";
+            } else {
+                stepPhaseDiv.className = "text-[10px] font-bold text-white px-3 py-1 rounded-full mb-5 tracking-widest uppercase bg-[#8C7E6E]";
+            }
+
+            document.getElementById('stepIconContainer').innerHTML = step.icon;
+            document.getElementById('stepText').innerHTML = step.text;
+            document.getElementById('stepCounter').innerText = `${currentStepIndex + 1} / 10`;
+            
+            const progressPercent = ((currentStepIndex + 1) / 10) * 100;
+            document.getElementById('tutorialProgress').style.width = `${progressPercent}%`;
+        }
+
+        function nextStep() {
+            currentStepIndex = (currentStepIndex + 1) % tutorialSteps.length;
+            renderStep();
+        }
+
+        function prevStep() {
+            currentStepIndex = (currentStepIndex - 1 + tutorialSteps.length) % tutorialSteps.length;
+            renderStep();
+        }
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('autoPlayBtn');
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                btn.innerHTML = "▶ 自動播放";
+                btn.classList.remove('bg-[#b09886]', 'text-white', 'border-[#b09886]');
+                btn.classList.add('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
+            } else {
+                nextStep();
+                autoPlayInterval = setInterval(nextStep, 5000);
+                btn.innerHTML = "⏸ 暫停播放";
+                btn.classList.remove('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
+                btn.classList.add('bg-[#b09886]', 'text-white', 'border-[#b09886]');
+            }
+            isAutoPlaying = !isAutoPlaying;
+        }
+
+        // === 4. 模組 B：殘劑計算與 SOP 生成 ===
+        function calculateB() {
+            const penSpec = parseFloat(document.getElementById('penSpecB').value);
+            const targetDose = parseFloat(document.getElementById('targetDoseB').value) || 0;
+            const maxUnits = parseInt(document.getElementById('syringeSpec').value);
+            const syringeName = document.getElementById('syringeSpec').options[document.getElementById('syringeSpec').selectedIndex].text.split('(')[0];
+
+            const vol = (targetDose / penSpec) * 0.6;
+            const units = Math.round(vol * 100);
+
+            document.getElementById('resultUnitsB').innerText = isNaN(units) ? 0 : units;
+            document.getElementById('resultVolB').innerText = isNaN(vol) ? "0.00" : vol.toFixed(2);
+
+            const containerB = document.getElementById('containerB');
+            const errorWarning = document.getElementById('errorWarning');
+            
+            if (units > maxUnits) {
+                containerB.classList.add('bg-warning-light', 'border-[#e6d5d5]');
+                errorWarning.classList.remove('hidden');
+            } else {
+                containerB.classList.remove('bg-warning-light', 'border-[#e6d5d5]');
+                errorWarning.classList.add('hidden');
+            }
+
+            renderSOP(syringeName, vol.toFixed(2), units);
+        }
+
+        function renderSOP(syringeName, ml, units) {
+            const safeUnits = isNaN(units) ? 0 : units;
+            const safeMl = isNaN(ml) ? "0.00" : ml;
+
+            const steps = [
+                { title: "步驟 1", desc: `準備好酒精棉片、猛健樂空筆針、以及全新的 <strong class="text-[#5c4a40] font-bold">${syringeName}</strong> 針筒。` },
+                { title: "步驟 2", desc: `系統評估本次需抽取 <strong class="text-[#5c4a40] font-bold">${safeMl}</strong> ml（即 <strong class="text-[#5c4a40] font-bold">${safeUnits}</strong> 單位）。` },
+                { title: "步驟 3", desc: "用酒精棉片用力擦拭猛健樂筆針前端的紅色橡膠內膜至少 5 秒，靜待風乾。" },
+                { title: "步驟 4", desc: `將 BD 針筒的推桿向後拉，使針筒內吸入 <strong class="text-[#5c4a40] font-bold">${safeUnits}</strong> 單位的空氣。` },
+                { title: "步驟 5", desc: "將針頭垂直刺入橡膠塞中心，將針筒內的空氣全部推入筆針中以平衡氣壓。" },
+                { title: "步驟 6", desc: `將筆針與針筒整體倒轉，慢慢將推桿向下抽吸，精準對齊至 <strong class="text-warning font-bold">${safeUnits}</strong> 單位（Units）刻度線後拔出。` },
+                { title: "步驟 7", desc: "輕彈針筒壁排除微小氣泡，確認劑量無誤後即可進行皮下注射。" }
+            ];
+
+            const sopList = document.getElementById('sopList');
+            sopList.innerHTML = steps.map(step => `
+                <div class="bg-white p-4 rounded-xl border border-[#f0eadd] flex items-start space-x-4 shadow-sm">
+                    <span class="text-xs font-bold text-[#b09886] mt-0.5 whitespace-nowrap">${step.title}</span>
+                    <p class="text-sm text-[#5c4a40] font-medium leading-relaxed">${step.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        // 綁定事件並初始化
+        window.onload = function() {
+            calculateA();
+            calculateB();
+            renderStep();
+        };
+    </script>
+</body>
+</html>
