@@ -8,7 +8,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;700&family=Quicksand:wght=400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* 全局字體套用：英數優先 Quicksand，中文完美對齊 Noto Sans TC */
@@ -38,18 +38,30 @@
         .slide-fade-enter-active { opacity: 1; transform: translateY(0); }
         .progress-bar-fill { transition: width 0.4s ease; }
 
-        /* === 滿版安全防偽浮水印 === */
+        /* === 滿版安全防偽浮水印（採用您上傳的去背景圖檔） === */
         .full-page-watermark {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none; /* 確保浮水印不會阻擋任何點擊事件 */
-            z-index: 9999; /* 確保浮水印覆蓋在最上層防截圖 */
-            opacity: 0.03; /* 優雅的低調透明度，防偽且不干擾視線 */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280' viewBox='0 0 280 280'%3E%3Ctext x='140' y='140' fill='%235c4a40' font-family='Noto Sans TC, sans-serif' font-weight='bold' font-size='13' transform='rotate(-30 140 140)' text-anchor='middle'%3EOCT. PHARMACY 時悅藥局%3C/text%3E%3C/svg%3E");
+            pointer-events: none; /* 確保浮水印完全穿透，不阻擋任何點擊事件 */
+            z-index: 9999; /* 確保覆蓋在最上層（標題與所有內容之上）防截圖 */
+            overflow: hidden;
+        }
+        .full-page-watermark::before {
+            content: "";
+            position: absolute;
+            width: 300%; /* 放大畫布以防旋轉時邊角漏白 */
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-image: url('1000018761.png'); /* 使用您指定的去背景圖檔 */
             background-repeat: repeat;
+            background-size: 240px; /* 控制浮水印圖案平鋪的大小，可依喜好微調 */
+            transform: rotate(-30deg); /* 精準達成傾斜效果 */
+            opacity: 0.04; /* 優雅的低調透明度，防偽防偽且絕不干擾視線 */
+            pointer-events: none;
         }
 
         /* === 核心 SVG 微動畫 === */
@@ -83,7 +95,6 @@
 </head>
 <body class="min-h-screen py-6 px-4 md:py-12 flex flex-col items-center">
 
-    <!-- 滿版安全防偽浮水印掛載點 -->
     <div class="full-page-watermark"></div>
 
     <div class="w-full max-w-2xl mx-auto flex-grow relative z-10">
@@ -178,14 +189,6 @@
                         <div>
                             <label class="block text-base font-bold text-[#8C7E6E] mb-2">下一次預計施打劑量 (mg)</label>
                             <input type="number" id="targetDoseB" value="2.5" step="0.1" min="0" oninput="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input">
-                        </div>
-                        <div>
-                            <label class="block text-base font-bold text-[#8C7E6E] mb-2">選用的 BD 針筒規格</label>
-                            <select id="syringeSpec" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer">
-                                <option value="30">BD 0.3ml (上限 30 U)</option>
-                                <option value="50">BD 0.5ml (上限 50 U)</option>
-                                <option value="100">BD 1.0ml (上限 100 U)</option>
-                            </select>
                         </div>
                     </div>
 
@@ -337,6 +340,56 @@
             if(currentStepIndex === 5) renderStep();
         }
 
+        // === 4. 分頁二：殘劑抽取計算 ===
+        function calculateB() {
+            const penSpec = parseFloat(document.getElementById('penSpecB').value);
+            const targetDose = parseFloat(document.getElementById('targetDoseB').value) || 0;
+            const maxUnits = parseInt(document.getElementById('syringeSpec').value);
+            const syringeName = document.getElementById('syringeSpec').options[document.getElementById('syringeSpec').selectedIndex].text.split('(')[0].trim();
+
+            const vol = (targetDose / penSpec) * 0.6;
+            const units = Math.round(vol * 100);
+
+            document.getElementById('resultUnitsB').innerText = isNaN(units) ? 0 : units;
+            document.getElementById('resultVolB').innerText = isNaN(vol) ? "0.00" : vol.toFixed(2);
+
+            const containerB = document.getElementById('containerB');
+            const errorWarning = document.getElementById('errorWarning');
+            
+            if (units > maxUnits) {
+                containerB.classList.add('bg-warning-light', 'border-[#e6d5d5]');
+                errorWarning.classList.remove('hidden');
+            } else {
+                containerB.classList.remove('bg-warning-light', 'border-[#e6d5d5]');
+                errorWarning.classList.add('hidden');
+            }
+
+            renderSOP(syringeName, vol.toFixed(2), units);
+        }
+
+        function renderSOP(syringeName, ml, units) {
+            const safeUnits = isNaN(units) ? 0 : units;
+            const safeMl = isNaN(ml) ? "0.00" : ml;
+
+            const steps = [
+                { title: "STEP 1.", desc: `準備好酒精棉片、猛健樂空筆針、以及全新的 <strong>${syringeName}</strong> 針筒。` },
+                { title: "STEP 2.", desc: `系統評估本次需抽取 <strong>${safeMl}</strong> ml（即 <strong>${safeUnits}</strong> 單位）。` },
+                { title: "STEP 3.", desc: "用酒精棉片用力擦拭猛健樂筆針前端的紅色橡膠內膜至少 5 秒，靜待風乾。" },
+                { title: "STEP 4.", desc: `將 BD 針筒的推桿向後拉，使針筒內吸入 <strong>${safeUnits}</strong> 單位的空氣。` },
+                { title: "STEP 5.", desc: "將針頭垂直刺入橡膠塞中心，將針筒內的空氣全部推入筆針中以平衡氣壓。" },
+                { title: "STEP 6.", desc: `將筆針與針筒整體倒轉，慢慢將推桿向下抽吸，精準對齊至 <strong class="text-[#a95e59]">${safeUnits}</strong> 單位 (Units) 刻度線後拔出。` },
+                { title: "STEP 7.", desc: "輕彈針筒壁排除微小氣泡，確認劑量無誤後即可進行皮下注射。" }
+            ];
+
+            const sopList = document.getElementById('sopList');
+            sopList.innerHTML = steps.map(step => `
+                <div class="bg-white p-4 rounded-xl border border-[#f0eadd] flex items-start space-x-4 shadow-sm">
+                    <span class="text-base font-bold text-[#b09886] mt-0.5 whitespace-nowrap">${step.title}</span>
+                    <p class="text-lg text-[#5c4a40] font-medium leading-relaxed">${step.desc}</p>
+                </div>
+            `).join('');
+        }
+
         function renderStep() {
             const step = tutorialSteps[currentStepIndex];
             const contentDiv = document.getElementById('stepContent');
@@ -389,56 +442,6 @@
                 btn.classList.add('bg-[#b09886]', 'text-white', 'border-[#b09886]');
             }
             isAutoPlaying = !isAutoPlaying;
-        }
-
-        // === 4. 分頁二：殘劑抽取計算 ===
-        function calculateB() {
-            const penSpec = parseFloat(document.getElementById('penSpecB').value);
-            const targetDose = parseFloat(document.getElementById('targetDoseB').value) || 0;
-            const maxUnits = parseInt(document.getElementById('syringeSpec').value);
-            const syringeName = document.getElementById('syringeSpec').options[document.getElementById('syringeSpec').selectedIndex].text.split('(')[0].trim();
-
-            const vol = (targetDose / penSpec) * 0.6;
-            const units = Math.round(vol * 100);
-
-            document.getElementById('resultUnitsB').innerText = isNaN(units) ? 0 : units;
-            document.getElementById('resultVolB').innerText = isNaN(vol) ? "0.00" : vol.toFixed(2);
-
-            const containerB = document.getElementById('containerB');
-            const errorWarning = document.getElementById('errorWarning');
-            
-            if (units > maxUnits) {
-                containerB.classList.add('bg-warning-light', 'border-[#e6d5d5]');
-                errorWarning.classList.remove('hidden');
-            } else {
-                containerB.classList.remove('bg-warning-light', 'border-[#e6d5d5]');
-                errorWarning.classList.add('hidden');
-            }
-
-            renderSOP(syringeName, vol.toFixed(2), units);
-        }
-
-        function renderSOP(syringeName, ml, units) {
-            const safeUnits = isNaN(units) ? 0 : units;
-            const safeMl = isNaN(ml) ? "0.00" : ml;
-
-            const steps = [
-                { title: "STEP 1.", desc: `準備好酒精棉片、猛健樂空筆針、以及全新的 <strong>${syringeName}</strong> 針筒。` },
-                { title: "STEP 2.", desc: `系統評估本次需抽取 <strong>${safeMl}</strong> ml（即 <strong>${safeUnits}</strong> 單位）。` },
-                { title: "STEP 3.", desc: "用酒精棉片用力擦拭猛健樂筆針前端的紅色橡膠內膜至少 5 秒，靜待風乾。" },
-                { title: "STEP 4.", desc: `將 BD 針筒的推桿向後拉，使針筒內吸入 <strong>${safeUnits}</strong> 單位的空氣。` },
-                { title: "STEP 5.", desc: "將針頭垂直刺入橡膠塞中心，將針筒內的空氣全部推入筆針中以平衡氣壓。" },
-                { title: "STEP 6.", desc: `將筆針與針筒整體倒轉，慢慢將推桿向下抽吸，精準對齊至 <strong class="text-[#a95e59]">${safeUnits}</strong> 單位 (Units) 刻度線後拔出。` },
-                { title: "STEP 7.", desc: "輕彈針筒壁排除微小氣泡，確認劑量無誤後即可進行皮下注射。" }
-            ];
-
-            const sopList = document.getElementById('sopList');
-            sopList.innerHTML = steps.map(step => `
-                <div class="bg-white p-4 rounded-xl border border-[#f0eadd] flex items-start space-x-4 shadow-sm">
-                    <span class="text-base font-bold text-[#b09886] mt-0.5 whitespace-nowrap">${step.title}</span>
-                    <p class="text-lg text-[#5c4a40] font-medium leading-relaxed">${step.desc}</p>
-                </div>
-            `).join('');
         }
 
         // 初始化
