@@ -2,313 +2,471 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>時悅藥局 — 猛健樂劑量與殘劑精算計算機</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時悅藥局 - 猛健樂劑量計算機</title>
     <style>
-        /* 全域樣式設定：引進現代幾何黑體風格 */
+        /* 全局字體與樣式精準還原行動端進階美感 */
         * {
             box-sizing: border-box;
-            font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: #F9F8F6; /* 溫柔舒緩的藥局現代米白底色 */
-            color: #3A3A3A;
+            background-color: #f4f6f9;
+            color: #333333;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
-            padding: 24px 16px;
-            position: relative;
+            padding: 20px 12px;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* ------------------------------------------------------------------
-           ✨ 核心品牌視覺：傾斜滿版 Logo 浮水印技術
-           ------------------------------------------------------------------ */
-        body::before {
-            content: "";
+        /* 滿版斜向旋轉鋪滿浮水印效果 */
+        .watermark-overlay {
             position: fixed;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            
-            /* 讀取您剛上傳的去背 Logo 圖檔 */
-            background-image: url('1000018760-removebg.png'); 
+            z-index: -1;
+            pointer-events: none;
+            background-image: url('1000018760-removebg.png');
             background-repeat: repeat;
-            background-size: 130px 130px; /* 控制每個重複小浮水印的大小 */
-            
-            /* 傾斜 25 度角 */
-            transform: rotate(-25deg); 
-            
-            /* 設定 4% 的極低透明度，優雅隱約不干擾數字閱讀 */
-            opacity: 0.04; 
-            
-            z-index: -1; /* 強制置於所有圖層最底層 */
-            pointer-events: none; /* 滑鼠或手指點擊自動穿透，不影響按鈕操作 */
+            background-size: 150px 150px;
+            opacity: 0.04; /* 細緻微透，不影響前台閱讀 */
+            transform: rotate(-25deg);
         }
 
-        /* 計算機主容器 */
-        .calculator-container {
+        /* 主容器 */
+        .app-container {
             width: 100%;
             max-width: 480px;
-            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            padding: 20px;
         }
 
-        /* 頁首標題區 */
+        /* 藥局標頭區 */
         .header {
             text-align: center;
-            margin-bottom: 24px;
-        }
-        .header .brand-subtitle {
-            font-size: 13px;
-            letter-spacing: 4px;
-            color: #8A8884;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .header .main-title {
-            font-size: 21px;
-            font-weight: 700;
-            color: #2E2E2E;
-            line-height: 1.4;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eef2f6;
+            padding-bottom: 16px;
         }
 
-        /* 分頁標籤樣式 */
-        .tabs-group {
-            display: flex;
-            background-color: #EFEFEF;
-            border-radius: 12px 12px 0 0;
-            padding: 4px 4px 0 4px;
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f766e; /* 醫療專業深質感翠綠 */
+            letter-spacing: 1px;
+            margin-bottom: 4px;
         }
-        .tab-btn {
+
+        .header p {
+            font-size: 12px;
+            color: #666666;
+            letter-spacing: 0.5px;
+        }
+
+        /* 功能頁籤 Tab 切換樣式 */
+        .tab-group {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
             flex: 1;
             border: none;
-            background: none;
-            padding: 14px 8px;
-            font-size: 15px;
-            font-weight: 500;
-            color: #7A7A7A;
-            cursor: pointer;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            transition: all 0.2s ease;
-        }
-        .tab-btn.active {
-            background-color: #FFFFFF;
-            color: #3A3A3A;
-            font-weight: 700;
-        }
-
-        /* 主要計算卡片面板 */
-        .main-card {
-            background-color: #FFFFFF;
-            border-radius: 0 0 16px 16px;
-            padding: 24px 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
-            border: 1px solid rgba(0, 0, 0, 0.02);
-            margin-bottom: 20px;
-        }
-
-        /* 表單輸入區塊 */
-        .input-block {
-            margin-bottom: 20px;
-        }
-        .input-label {
-            display: block;
-            font-size: 15px;
-            color: #5A5A5A;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        .form-control {
-            width: 100%;
-            height: 48px;
-            border: 1px solid #E2E2E2;
-            border-radius: 8px;
-            padding: 0 14px;
-            font-size: 16px;
-            color: #333333;
-            background-color: #FFFFFF;
-            outline: none;
-            transition: border-color 0.2s;
-            -webkit-appearance: none;
-        }
-        .form-control:focus {
-            border-color: #8A8884;
-        }
-
-        /* 下拉選單箭頭裝飾 */
-        select.form-control {
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23777777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-        }
-
-        /* 計算結果展現區 */
-        .result-section {
-            text-align: center;
-            margin-top: 28px;
-            padding-top: 12px;
-        }
-        .result-title {
+            background: transparent;
+            padding: 10px 8px;
             font-size: 14px;
-            color: #8A8884;
-            letter-spacing: 1px;
+            font-weight: 600;
+            color: #627d98;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-button.active {
+            background: #ffffff;
+            color: #0f766e;
+            box-shadow: 0 2px 6px rgba(15, 118, 110, 0.15);
+        }
+
+        /* 內容面板 */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* 輸入表單區 */
+        .form-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
             margin-bottom: 6px;
         }
-        .result-main {
-            font-size: 48px;
-            font-weight: 700;
-            color: #2A2A2A;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-        }
-        .result-main .unit {
-            font-size: 20px;
-            font-weight: 500;
-            color: #5A5A5A;
-            margin-left: 6px;
-        }
-        .result-badge {
-            display: inline-block;
-            background-color: #F5F5F3;
-            color: #6A6A6A;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
+
+        .input-control {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        /* 底部衛教區塊 */
-        .education-card {
-            background-color: #FFFFFF;
-            border-radius: 16px;
-            padding: 16px 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 0, 0, 0.01);
+        .input-control:focus {
+            border-color: #14b8a6;
+            background: #ffffff;
+        }
+
+        /* 計算結果高亮卡片 */
+        .result-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 10px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(22, 101, 52, 0.1);
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: #166534;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+        /* 互動式衛教引導區 */
+        .guide-section {
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 16px;
+        }
+
+        .guide-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 12px;
         }
-        .education-title {
+
+        .guide-title {
             font-size: 14px;
-            font-weight: 500;
-            color: #6A6A6A;
+            font-weight: 700;
+            color: #334155;
         }
+
         .play-btn {
-            background-color: #F5F5F3;
+            background: #0f766e;
+            color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 5px 12px;
+            font-size: 12px;
             border-radius: 20px;
-            font-size: 13px;
-            color: #4A4A4A;
-            font-weight: 500;
             cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .play-btn:hover {
+            background: #115e59;
+        }
+
+        .step-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 90px;
+            transition: all 0.3s ease;
+        }
+
+        .step-num {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+
+        .step-text {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        /* 底部導航指示器點點 */
+        .dot-group {
             display: flex;
-            align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .dot.active {
+            background: #0f766e;
+            width: 14px;
+            border-radius: 3px;
         }
     </style>
 </head>
 <body>
 
-    <div class="calculator-container">
+    <div class="watermark-overlay"></div>
+
+    <div class="app-container">
         
         <div class="header">
-            <div class="brand-subtitle">OCT. PHARMACY</div>
-            <div class="main-title">時悅藥局 — 猛健樂劑量與<br>殘劑精算計算機</div>
+            <h1>時悅藥局 OCT. PHARMACY</h1>
+            <p>猛健樂 (Mounjaro) 智能精準計算機</p>
         </div>
 
-        <div class="tabs-group">
-            <button class="tab-btn active">常規施打計算與教學</button>
-            <button class="tab-btn">BD 針筒殘劑抽取</button>
+        <div class="tab-group">
+            <button class="tab-button active" onclick="switchTab('normal')">常規施打計算與教學</button>
+            <button class="tab-button" onclick="switchTab('residual')">BD 針筒殘劑抽取</button>
         </div>
 
-        <div class="main-card">
-            
-            <div class="input-block">
-                <label class="input-label" for="penSpec">目前使用的筆針規格 (mg)</label>
-                <select id="penSpec" class="form-control" onchange="performCalculation()">
-                    <option value="2.5">2.5 mg</option>
-                    <option value="5.0">5.0 mg</option>
-                    <option value="7.5">7.5 mg</option>
-                    <option value="10.0" selected>10.0 mg</option>
-                    <option value="12.5">12.5 mg</option>
-                    <option value="15.0">15.0 mg</option>
-                </select>
-            </div>
-
-            <div class="input-block">
-                <label class="input-label" for="targetDose">客戶實際要施打的劑量 (mg)</label>
-                <input type="number" id="targetDose" class="form-control" value="2.5" step="0.1" min="0" oninput="performCalculation()">
-            </div>
-
-            <div class="result-section">
-                <div class="result-title">建議旋轉格數</div>
-                <div class="result-main">
-                    <span id="clickResult">15</span>
-                    <span class="unit">格</span>
+        <div id="panel-normal" class="tab-panel active">
+            <div class="form-card">
+                <div class="input-group">
+                    <label for="spec-normal">目前使用的筆針規格 (mg)</label>
+                    <input type="number" id="spec-normal" class="input-control" value="2.5" step="2.5" oninput="calculateNormal()">
                 </div>
-                <div class="result-badge">
-                    對應施打體積 : <span id="volumeResult">0.15</span> ml
+                <div class="input-group">
+                    <label for="dose-normal">客戶實際要施打的劑量 (mg)</label>
+                    <input type="number" id="dose-normal" class="input-control" value="2.5" step="0.5" oninput="calculateNormal()">
                 </div>
             </div>
 
+            <div class="result-card">
+                <div class="result-title">🎯 系統建議調節結果</div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">建議旋轉格數</div>
+                        <div class="result-value" id="clicks-normal">60 格</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">對應施打體積</div>
+                        <div class="result-value" id="volume-normal">0.60 ml</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-section">
+                <div class="guide-header">
+                    <div class="guide-title">📖 互動式施打衛教指引</div>
+                    <button class="play-btn" id="play-btn" onclick="togglePlay()">▶ 自動播放</button>
+                </div>
+                <div class="step-card">
+                    <div class="step-num" id="step-badge">步驟 1 / 5</div>
+                    <div class="step-text" id="step-content">檢查藥筆：確認品名、劑量與效期，確保外觀液體清晰無混濁變質。</div>
+                </div>
+                <div class="dot-group" id="dot-group">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="education-card">
-            <div class="education-title">互動式衛教指引</div>
-            <button class="play-btn">▶ 自動播放</button>
+        <div id="panel-residual" class="tab-panel">
+            <div class="form-card">
+                <div class="input-group">
+                    <label for="spec-residual">原筆針容量規格 (mg)</label>
+                    <input type="number" id="spec-residual" class="input-control" value="10.0" step="2.5" oninput="calculateResidual()">
+                </div>
+                <div class="input-group">
+                    <label for="dose-residual">預計抽取目標劑量 (mg)</label>
+                    <input type="number" id="dose-residual" class="input-control" value="2.5" step="0.5" oninput="calculateResidual()">
+                </div>
+            </div>
+
+            <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-color: #bae6fd;">
+                <div class="result-title" style="color: #0369a1;">💉 BD 針筒抽取精準刻度</div>
+                <div class="result-grid">
+                    <div class="result-item" style="grid-column: span 2;">
+                        <div class="result-label" style="color: #0369a1;">對應 BD 針筒刻度 (U-100 單位)</div>
+                        <div class="result-value" id="units-residual" style="color: #0369a1; font-size: 24px;">15 單位</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-section">
+                <div class="guide-title" style="margin-bottom: 10px;">🛠 殘劑安全吸取規範</div>
+                <div class="step-card" style="min-height: auto; margin-bottom: 8px;">
+                    <div class="step-text" style="font-size: 13px; color: #475569;">1. <b>無菌抽吸</b>：使用酒精棉片徹底消毒筆針前端橡膠塞表面。</div>
+                </div>
+                <div class="step-card" style="min-height: auto; margin-bottom: 8px;">
+                    <div class="step-text" style="font-size: 13px; color: #475569;">2. <b>垂直進針</b>：使用 BD 針筒（如 U-100 規格）垂直由中央刺入膠塞。</div>
+                </div>
+                <div class="step-card" style="min-height: auto;">
+                    <div class="step-text" style="font-size: 13px; color: #475569;">3. <b>排空排氣</b>：緩慢回抽活塞至指定刻度，若有氣泡請輕彈筒身並往回推排空。</div>
+                </div>
+            </div>
         </div>
 
     </div>
 
     <script>
-        function performCalculation() {
-            const penSpec = parseFloat(document.getElementById('penSpec').value);
-            const targetDose = parseFloat(document.getElementById('targetDose').value);
+        // 頁籤切換邏輯 (完整保留並修復切換)
+        function switchTab(type) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
             
-            const clickElement = document.getElementById('clickResult');
-            const volumeElement = document.getElementById('volumeResult');
-
-            // 驗證欄位安全數值
-            if (isNaN(penSpec) || isNaN(targetDose) || penSpec <= 0 || targetDose <= 0) {
-                clickElement.innerText = "--";
-                volumeElement.innerText = "0.00";
-                return;
+            if(type === 'normal') {
+                document.querySelectorAll('.tab-button')[0].classList.add('active');
+                document.getElementById('panel-normal').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-button')[1].classList.add('active');
+                document.getElementById('panel-residual').classList.add('active');
             }
-
-            /* 💡 根據時悅藥局官方數據精密推算公式：
-              標準 Mounjaro 筆針滿劑量皆為 60 格，對應總體積為 0.60 ml。
-              格數公式 = (目標劑量 / 筆針規格) * 60
-              體積公式 = 格數 * 0.01 ml
-            */
-            let calculatedClicks = (targetDose / penSpec) * 60;
-            calculatedClicks = Math.round(calculatedClicks); // 四捨五入至整數格
-
-            const calculatedVolume = (calculatedClicks * 0.01).toFixed(2);
-
-            // 即時更新到網頁畫面上
-            clickElement.innerText = calculatedClicks;
-            volumeElement.innerText = calculatedVolume;
         }
 
-        // 初始化時自動計算一次
-        window.onload = performCalculation;
-    </script>
+        // 核心精準數學邏輯模型 (對應 2.5mg->60格/0.6ml ； 10mg 與 2.5mg->15格/0.15ml)
+        function calculateNormal() {
+            const spec = parseFloat(document.getElementById('spec-normal').value);
+            const dose = parseFloat(document.getElementById('dose-normal').value);
+            
+            if (!spec || !dose || spec <= 0) return;
 
+            const clicks = Math.round((dose / spec) * 60);
+            const volume = ((dose / spec) * 0.60).toFixed(2);
+
+            document.getElementById('clicks-normal').innerText = clicks + " 格";
+            document.getElementById('volume-normal').innerText = volume + " ml";
+        }
+
+        function calculateResidual() {
+            const spec = parseFloat(document.getElementById('spec-residual').value);
+            const dose = parseFloat(document.getElementById('dose-residual').value);
+            
+            if (!spec || !dose || spec <= 0) return;
+
+            // U-100 針筒：1ml = 100單位，因此 0.15ml 為 15單位
+            const volume = (dose / spec) * 0.60;
+            const units = Math.round(volume * 100);
+
+            document.getElementById('units-residual').innerText = units + " 單位";
+        }
+
+        // 互動式衛教自動播放數據
+        const steps = [
+            "檢查藥筆：確認品名、劑量與效期，確保外觀液體清晰無混濁變質。",
+            "部位清潔：使用酒精棉片徹底消毒欲施打部位（腹部、大腿或上臂外側）。",
+            "取下筆蓋：垂直朝外拔下筆蓋，此時切勿觸碰前端針頭避免污染。",
+            "設定解鎖：轉動頂端安全鎖旋鈕，將箭頭由「LOCK」指向解鎖位置。",
+            "貼緊注射：底座平貼施打處皮膚，按下頂端按鈕，聽到首聲「喀」開始注射，並持續按壓維持10秒待第二聲「喀」後移開。"
+        ];
+
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+
+        function updateStep() {
+            document.getElementById('step-badge').innerText = `步驟 ${currentStep + 1} / ${steps.length}`;
+            document.getElementById('step-content').innerText = steps[currentStep];
+            
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if(index === currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('play-btn');
+            if (isPlaying) {
+                clearInterval(playInterval);
+                btn.innerText = "▶ 自動播放";
+                isPlaying = false;
+            } else {
+                btn.innerText = "⏸ 暫停播放";
+                isPlaying = true;
+                playInterval = setInterval(() => {
+                    currentStep = (currentStep + 1) % steps.length;
+                    updateStep();
+                }, 3000);
+            }
+        }
+    </script>
 </body>
 </html>
