@@ -8,7 +8,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;700&family=Quicksand:wght=400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         /* 全局字體套用：英數優先 Quicksand，中文完美對齊 Noto Sans TC */
@@ -18,7 +18,24 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        body { background-color: #Fdfbf7; }
+        body { 
+            background-color: #Fdfbf7; 
+            position: relative;
+            z-index: 0;
+        }
+
+        /* === 新增：滿版傾斜底部浮水印 === */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            pointer-events: none;
+            /* 使用 SVG 做無縫重複背景，確保效能與畫質，透明度設為非常低的 0.04 */
+            background-image: url("data:image/svg+xml,%3Csvg width='320' height='220' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' transform='rotate(-25 160 110)' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='22' font-weight='bold' fill='%238c7e6e' fill-opacity='0.04'%3E時悅藥局 OCT. PHARMACY%3C/text%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+
         .text-primary { color: #8C7E6E; }
         .bg-primary { background-color: #8C7E6E; }
         .border-primary { border-color: #8C7E6E; }
@@ -26,43 +43,37 @@
         .bg-accent { background-color: #b09886; }
         .text-warning { color: #a95e59; }
         .bg-warning-light { background-color: #fcf5f4; }
-        .elegant-shadow { box-shadow: 0 10px 30px -10px rgba(140, 126, 110, 0.15); }
+        
+        /* 改良原本的陰影：增加頂部微弱高光，提升立體感 */
+        .elegant-shadow { 
+            box-shadow: 0 20px 40px -10px rgba(140, 126, 110, 0.15), 0 -2px 10px rgba(255, 255, 255, 1); 
+        }
+
+        /* === 新增：凹陷/嵌燈層次感 === */
+        .recessed-panel {
+            box-shadow: 
+                inset 0 3px 8px rgba(140, 126, 110, 0.08), 
+                inset 0 1px 3px rgba(140, 126, 110, 0.04),
+                0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        /* === 新增：凸起/懸浮層次感 === */
+        .raised-panel {
+            box-shadow: 
+                0 6px 16px rgba(140, 126, 110, 0.08), 
+                0 2px 4px rgba(140, 126, 110, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
         
         .elegant-input:focus {
             outline: none;
             border-color: #b09886;
-            box-shadow: 0 0 0 3px rgba(176, 152, 134, 0.2);
+            box-shadow: inset 0 2px 4px rgba(140, 126, 110, 0.1), 0 0 0 3px rgba(176, 152, 134, 0.2);
         }
 
         .slide-fade-enter { opacity: 0; transform: translateY(8px); transition: all 0.4s ease-out; }
         .slide-fade-enter-active { opacity: 1; transform: translateY(0); }
         .progress-bar-fill { transition: width 0.4s ease; }
-
-        /* === 滿版安全防偽浮水印（採用您上傳的去背景圖檔） === */
-        .full-page-watermark {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none; /* 確保浮水印完全穿透，不阻擋任何點擊事件 */
-            z-index: 9999; /* 確保覆蓋在最上層（標題與所有內容之上）防截圖 */
-            overflow: hidden;
-        }
-        .full-page-watermark::before {
-            content: "";
-            position: absolute;
-            width: 300%; /* 放大畫布以防旋轉時邊角漏白 */
-            height: 300%;
-            top: -100%;
-            left: -100%;
-            background-image: url('1000018761.png'); /* 使用您指定的去背景圖檔 */
-            background-repeat: repeat;
-            background-size: 240px; /* 控制浮水印圖案平鋪的大小，可依喜好微調 */
-            transform: rotate(-30deg); /* 精準達成傾斜效果 */
-            opacity: 0.04; /* 優雅的低調透明度，防偽防偽且絕不干擾視線 */
-            pointer-events: none;
-        }
 
         /* === 核心 SVG 微動畫 === */
         @keyframes animCapPullUp { 0%, 15%, 100% { transform: translateY(2px); } 50%, 65% { transform: translateY(-16px); } }
@@ -95,9 +106,7 @@
 </head>
 <body class="min-h-screen py-6 px-4 md:py-12 flex flex-col items-center">
 
-    <div class="full-page-watermark"></div>
-
-    <div class="w-full max-w-2xl mx-auto flex-grow relative z-10">
+    <div class="w-full max-w-2xl mx-auto flex-grow">
         
         <header class="text-center mb-10 mt-4">
             <div class="text-xs tracking-[0.4em] font-bold text-[#b09886] uppercase mb-3">OCT. PHARMACY</div>
@@ -108,21 +117,22 @@
         <div class="bg-white rounded-2xl elegant-shadow overflow-hidden border border-[#f0eadd] mb-8">
             
             <div class="flex border-b border-[#f0eadd] bg-[#fcfaf7]">
-                <button id="tab1Btn" onclick="switchTab(1)" class="w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none">
+                <button id="tab1Btn" onclick="switchTab(1)" class="w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
                     常規施打計算與教學
                 </button>
-                <button id="tab2Btn" onclick="switchTab(2)" class="w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none">
+                <button id="tab2Btn" onclick="switchTab(2)" class="w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none inset-shadow-sm">
                     BD 針筒殘劑抽取
                 </button>
             </div>
 
-            <div class="p-5 md:p-8">
+            <div class="p-5 md:p-8 relative">
                 
                 <div id="contentTab1" class="space-y-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-base font-bold text-[#8C7E6E] mb-2">目前使用的筆針規格 (mg)</label>
-                            <select id="penSpecA" onchange="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer">
+                            <!-- 加入 recessed-panel 產生凹陷感 -->
+                            <select id="penSpecA" onchange="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer recessed-panel">
                                 <option value="2.5">2.5 mg</option>
                                 <option value="5.0">5.0 mg</option>
                                 <option value="7.5">7.5 mg</option>
@@ -133,42 +143,46 @@
                         </div>
                         <div>
                             <label class="block text-base font-bold text-[#8C7E6E] mb-2">客戶實際要施打的劑量 (mg)</label>
-                            <input type="number" id="targetDoseA" value="2.5" step="0.1" min="0" oninput="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input text-lg">
+                            <!-- 加入 recessed-panel 產生凹陷感 -->
+                            <input type="number" id="targetDoseA" value="2.5" step="0.1" min="0" oninput="calculateA()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input text-lg recessed-panel">
                         </div>
                     </div>
 
-                    <div class="border-t border-[#f0eadd] pt-6 text-center">
+                    <!-- 計算結果區塊：加入 bg色與 recessed-panel 像嵌進去的螢幕 -->
+                    <div class="border border-[#f0eadd] pt-6 pb-6 text-center bg-[#fcfaf7] rounded-xl recessed-panel mt-2">
                         <div class="text-lg font-bold text-[#b09886] mb-1">建議旋轉格數</div>
-                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2">
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2 drop-shadow-sm">
                             <span id="resultClicksA">15</span><span class="text-2xl font-bold text-[#8C7E6E] ml-1">格</span>
                         </div>
-                        <div class="text-base text-[#8C7E6E] mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-medium">
+                        <div class="text-base text-[#8C7E6E] mt-2 bg-white inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-medium raised-panel">
                             對應施打體積：<span id="resultVolA" class="font-bold">0.15</span> ml
                         </div>
                     </div>
 
-                    <div class="bg-[#fdfbf7] border border-[#f0eadd] rounded-2xl p-5 md:p-8 mt-4 relative">
+                    <!-- 衛教區塊外框：嵌燈凹陷感 -->
+                    <div class="bg-[#fcfaf7] border border-[#f0eadd] rounded-2xl p-5 md:p-8 mt-4 relative recessed-panel">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-sm font-bold tracking-[0.1em] text-[#b09886] uppercase">互動式衛教指引</h2>
-                            <button id="autoPlayBtn" onclick="toggleAutoPlay()" class="text-sm px-4 py-1.5 bg-white border border-[#e8dcc4] rounded-full text-[#8C7E6E] hover:bg-[#f5f1e9] transition-colors focus:outline-none shadow-sm font-medium">
+                            <button id="autoPlayBtn" onclick="toggleAutoPlay()" class="text-sm px-4 py-1.5 bg-white border border-[#e8dcc4] rounded-full text-[#8C7E6E] hover:bg-[#f5f1e9] transition-colors focus:outline-none shadow-sm font-medium raised-panel">
                                 ▶ 自動播放
                             </button>
                         </div>
 
-                        <div class="w-full bg-[#f0eadd] rounded-full h-1 mb-8">
-                            <div id="tutorialProgress" class="bg-[#b09886] h-1 rounded-full progress-bar-fill" style="width: 10%;"></div>
+                        <div class="w-full bg-[#e8dcc4] rounded-full h-1 mb-8 shadow-inner">
+                            <div id="tutorialProgress" class="bg-[#b09886] h-1 rounded-full progress-bar-fill shadow-sm" style="width: 10%;"></div>
                         </div>
 
-                        <div id="stepContent" class="min-h-[280px] flex flex-col justify-center items-center text-center p-6 bg-white rounded-xl border border-[#f0eadd] shadow-sm slide-fade-enter slide-fade-enter-active">
-                            <div id="stepPhase" class="text-xs font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#d5c7b8]">前置準備</div>
-                            <div id="stepIconContainer" class="w-24 h-24 mb-5 text-[#8C7E6E] flex items-center justify-center bg-[#fdfbf7] rounded-full border border-[#f0eadd]"></div>
+                        <!-- 衛教步驟卡片：凸起懸浮感 -->
+                        <div id="stepContent" class="min-h-[280px] flex flex-col justify-center items-center text-center p-6 bg-white rounded-xl border border-[#f0eadd] raised-panel slide-fade-enter slide-fade-enter-active">
+                            <div id="stepPhase" class="text-xs font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#d5c7b8] shadow-inner">前置準備</div>
+                            <div id="stepIconContainer" class="w-24 h-24 mb-5 text-[#8C7E6E] flex items-center justify-center bg-[#fdfbf7] rounded-full border border-[#f0eadd] recessed-panel"></div>
                             <div id="stepText" class="text-lg md:text-xl text-[#5c4a40] font-bold max-w-md leading-loose">將注射筆蓋拔起</div>
                         </div>
 
                         <div class="flex justify-between items-center mt-6 px-2">
-                            <button onclick="prevStep()" class="text-base font-bold text-[#b09886] hover:text-[#5c4a40] transition-colors focus:outline-none">&larr; 上一步</button>
+                            <button onclick="prevStep()" class="text-base font-bold text-[#b09886] hover:text-[#5c4a40] transition-colors focus:outline-none drop-shadow-sm">&larr; 上一步</button>
                             <span id="stepCounter" class="text-sm font-bold text-[#b09886] tracking-widest">1 / 10</span>
-                            <button onclick="nextStep()" class="px-6 py-2 text-base font-bold text-white bg-[#b09886] rounded-full hover:bg-[#8C7E6E] transition-colors focus:outline-none shadow-sm">下一步 &rarr;</button>
+                            <button onclick="nextStep()" class="px-6 py-2 text-base font-bold text-white bg-[#b09886] rounded-full hover:bg-[#8C7E6E] transition-colors focus:outline-none raised-panel">下一步 &rarr;</button>
                         </div>
                     </div>
                 </div>
@@ -177,7 +191,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-base font-bold text-[#8C7E6E] mb-2">原殘劑筆針規格 (mg)</label>
-                            <select id="penSpecB" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer">
+                            <!-- 加入 recessed-panel -->
+                            <select id="penSpecB" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer recessed-panel">
                                 <option value="2.5">2.5 mg</option>
                                 <option value="5.0">5.0 mg</option>
                                 <option value="7.5">7.5 mg</option>
@@ -188,25 +203,36 @@
                         </div>
                         <div>
                             <label class="block text-base font-bold text-[#8C7E6E] mb-2">下一次預計施打劑量 (mg)</label>
-                            <input type="number" id="targetDoseB" value="2.5" step="0.1" min="0" oninput="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input">
+                            <input type="number" id="targetDoseB" value="2.5" step="0.1" min="0" oninput="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input recessed-panel">
+                        </div>
+                        <div>
+                            <label class="block text-base font-bold text-[#8C7E6E] mb-2">選用的 BD 針筒規格</label>
+                            <select id="syringeSpec" onchange="calculateB()" class="w-full p-3 bg-[#fdfbf7] border border-[#e8dcc4] rounded-xl text-[#5c4a40] font-bold elegant-input cursor-pointer recessed-panel">
+                                <option value="30">BD 0.3ml (上限 30 U)</option>
+                                <option value="50">BD 0.5ml (上限 50 U)</option>
+                                <option value="100">BD 1.0ml (上限 100 U)</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div id="errorWarning" class="p-4 rounded-xl bg-warning-light border border-[#e6d5d5] text-warning text-base font-bold hidden">
+                    <!-- 錯誤提示卡片：加入 raised-panel -->
+                    <div id="errorWarning" class="p-4 rounded-xl bg-warning-light border border-[#e6d5d5] text-warning text-base font-bold hidden raised-panel">
                         ⚠️ 抽取劑量已超過該針筒容量上限！請更換為較大容量的 BD 針筒。
                     </div>
 
-                    <div id="containerB" class="border-t border-[#f0eadd] pt-6 text-center transition-all rounded-xl p-2">
+                    <!-- 結果區塊：加入 recessed-panel -->
+                    <div id="containerB" class="border border-[#f0eadd] pt-6 pb-6 text-center transition-all rounded-xl recessed-panel bg-[#fcfaf7]">
                         <div class="text-lg font-bold text-[#b09886] mb-1">BD 針筒對應抽吸刻度</div>
-                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2">
+                        <div class="text-5xl font-bold text-[#5c4a40] tracking-tight my-2 drop-shadow-sm">
                             <span id="resultUnitsB">15</span><span class="text-2xl font-bold text-[#8C7E6E] ml-1">單位 (Units)</span>
                         </div>
-                        <div class="text-base text-[#8C7E6E] mt-2 bg-[#fcfaf7] inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-medium">
+                        <div class="text-base text-[#8C7E6E] mt-2 bg-white inline-block px-4 py-1.5 rounded-full border border-[#f0eadd] font-medium raised-panel">
                             需要抽取的體積：<span id="resultVolB" class="font-bold">0.15</span> ml
                         </div>
                     </div>
 
-                    <div class="mt-6 border border-[#f0eadd] rounded-2xl p-5 md:p-6 bg-[#fdfbf7]">
+                    <!-- SOP外框：加入 recessed-panel -->
+                    <div class="mt-6 border border-[#f0eadd] rounded-2xl p-5 md:p-6 bg-[#fcfaf7] recessed-panel">
                         <h2 class="text-sm font-bold tracking-[0.1em] text-[#b09886] uppercase mb-5 pl-1">居家殘劑抽取安全 SOP 指引</h2>
                         <div class="space-y-4" id="sopList"></div>
                     </div>
@@ -216,7 +242,7 @@
         </div>
 
         <footer class="text-center mt-10 mb-6">
-            <div class="text-[11px] font-bold text-[#b09886] tracking-widest uppercase">© 2026 時悅藥局 OCT. PHARMACY</div>
+            <div class="text-[11px] font-bold text-[#b09886] tracking-widest uppercase drop-shadow-sm">© 2026 時悅藥局 OCT. PHARMACY</div>
             <div class="text-sm text-[#c2b5aa] mt-2 tracking-widest font-medium">專業守護 • 溫暖陪伴</div>
         </footer>
 
@@ -231,14 +257,14 @@
             const content2 = document.getElementById('contentTab2');
 
             if (tabIndex === 1) {
-                btn1.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none";
-                btn2.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none";
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] z-10";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none inset-shadow-sm z-0";
                 content1.classList.remove('hidden');
                 content2.classList.add('hidden');
                 calculateA();
             } else {
-                btn1.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none";
-                btn2.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none";
+                btn1.className = "w-1/2 py-4 text-center font-bold text-[#b09886] border-b-2 border-transparent hover:text-[#5c4a40] text-lg md:text-xl transition-all cursor-pointer focus:outline-none inset-shadow-sm z-0";
+                btn2.className = "w-1/2 py-4 text-center font-bold text-[#5c4a40] bg-white border-b-2 border-[#8C7E6E] text-lg md:text-xl transition-all cursor-pointer focus:outline-none shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] z-10";
                 content1.classList.add('hidden');
                 content2.classList.remove('hidden');
                 calculateB();
@@ -340,6 +366,60 @@
             if(currentStepIndex === 5) renderStep();
         }
 
+        function renderStep() {
+            const step = tutorialSteps[currentStepIndex];
+            const contentDiv = document.getElementById('stepContent');
+            
+            contentDiv.classList.remove('slide-fade-enter-active');
+            void contentDiv.offsetWidth; 
+            contentDiv.classList.add('slide-fade-enter-active');
+
+            const stepPhaseDiv = document.getElementById('stepPhase');
+            stepPhaseDiv.innerText = step.phase;
+            
+            if (step.phase === '前置準備') {
+                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#c2b5aa] shadow-inner";
+            } else if (step.phase === '排氣動作') {
+                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#b09886] shadow-inner";
+            } else {
+                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#8C7E6E] shadow-inner";
+            }
+
+            document.getElementById('stepIconContainer').innerHTML = step.icon;
+            document.getElementById('stepText').innerHTML = step.text;
+            document.getElementById('stepCounter').innerText = `${currentStepIndex + 1} / 10`;
+            
+            const progressPercent = ((currentStepIndex + 1) / 10) * 100;
+            document.getElementById('tutorialProgress').style.width = `${progressPercent}%`;
+        }
+
+        function nextStep() {
+            currentStepIndex = (currentStepIndex + 1) % tutorialSteps.length;
+            renderStep();
+        }
+
+        function prevStep() {
+            currentStepIndex = (currentStepIndex - 1 + tutorialSteps.length) % tutorialSteps.length;
+            renderStep();
+        }
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('autoPlayBtn');
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                btn.innerHTML = "▶ 自動播放";
+                btn.classList.remove('bg-[#b09886]', 'text-white', 'border-[#b09886]');
+                btn.classList.add('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
+            } else {
+                nextStep();
+                autoPlayInterval = setInterval(nextStep, 5000);
+                btn.innerHTML = "⏸ 暫停播放";
+                btn.classList.remove('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
+                btn.classList.add('bg-[#b09886]', 'text-white', 'border-[#b09886]');
+            }
+            isAutoPlaying = !isAutoPlaying;
+        }
+
         // === 4. 分頁二：殘劑抽取計算 ===
         function calculateB() {
             const penSpec = parseFloat(document.getElementById('penSpecB').value);
@@ -382,66 +462,13 @@
             ];
 
             const sopList = document.getElementById('sopList');
+            /* 加入 raised-panel 讓每張 SOP 卡片都有浮出的層次感 */
             sopList.innerHTML = steps.map(step => `
-                <div class="bg-white p-4 rounded-xl border border-[#f0eadd] flex items-start space-x-4 shadow-sm">
+                <div class="bg-white p-4 rounded-xl border border-[#f0eadd] flex items-start space-x-4 raised-panel">
                     <span class="text-base font-bold text-[#b09886] mt-0.5 whitespace-nowrap">${step.title}</span>
                     <p class="text-lg text-[#5c4a40] font-medium leading-relaxed">${step.desc}</p>
                 </div>
             `).join('');
-        }
-
-        function renderStep() {
-            const step = tutorialSteps[currentStepIndex];
-            const contentDiv = document.getElementById('stepContent');
-            
-            contentDiv.classList.remove('slide-fade-enter-active');
-            void contentDiv.offsetWidth; 
-            contentDiv.classList.add('slide-fade-enter-active');
-
-            const stepPhaseDiv = document.getElementById('stepPhase');
-            stepPhaseDiv.innerText = step.phase;
-            
-            if (step.phase === '前置準備') {
-                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#c2b5aa]";
-            } else if (step.phase === '排氣動作') {
-                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#b09886]";
-            } else {
-                stepPhaseDiv.className = "text-sm font-bold text-white px-4 py-1.5 rounded-full mb-5 tracking-widest bg-[#8C7E6E]";
-            }
-
-            document.getElementById('stepIconContainer').innerHTML = step.icon;
-            document.getElementById('stepText').innerHTML = step.text;
-            document.getElementById('stepCounter').innerText = `${currentStepIndex + 1} / 10`;
-            
-            const progressPercent = ((currentStepIndex + 1) / 10) * 100;
-            document.getElementById('tutorialProgress').style.width = `${progressPercent}%`;
-        }
-
-        function nextStep() {
-            currentStepIndex = (currentStepIndex + 1) % tutorialSteps.length;
-            renderStep();
-        }
-
-        function prevStep() {
-            currentStepIndex = (currentStepIndex - 1 + tutorialSteps.length) % tutorialSteps.length;
-            renderStep();
-        }
-
-        function toggleAutoPlay() {
-            const btn = document.getElementById('autoPlayBtn');
-            if (isAutoPlaying) {
-                clearInterval(autoPlayInterval);
-                btn.innerHTML = "▶ 自動播放";
-                btn.classList.remove('bg-[#b09886]', 'text-white', 'border-[#b09886]');
-                btn.classList.add('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
-            } else {
-                nextStep();
-                autoPlayInterval = setInterval(nextStep, 5000);
-                btn.innerHTML = "⏸ 暫停播放";
-                btn.classList.remove('bg-white', 'text-[#8C7E6E]', 'border-[#e8dcc4]');
-                btn.classList.add('bg-[#b09886]', 'text-white', 'border-[#b09886]');
-            }
-            isAutoPlaying = !isAutoPlaying;
         }
 
         // 初始化
